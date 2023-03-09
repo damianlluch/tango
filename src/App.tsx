@@ -1,10 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import Webcam from 'react-webcam';
 import * as faceapi from 'face-api.js';
-import Loader from './components/Loader';
+import Loader from './components/loader';
 import { drawEmoji } from './utils/drawEmoji';
 import './styles/app.css';
-import SupportButton from './components/supportButton';
 
 const App = () => {
 
@@ -108,8 +107,6 @@ const App = () => {
       <main className='main'>
         {webcamEnabled && renderWebcam()}
       </main>
-
-      <SupportButton />
 
       <footer>
         <p>
