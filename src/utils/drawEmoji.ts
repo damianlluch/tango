@@ -2,16 +2,20 @@ import { WithFaceExpressions } from 'face-api.js';
 import { DetectionsWithExpressions } from '../typings/dependency.typings';
 
 interface DrawEmojiProps {
-  detectionsWithExpressions: WithFaceExpressions<DetectionsWithExpressions>[]
-  canvas: HTMLCanvasElement
+    detectionsWithExpressions: WithFaceExpressions<DetectionsWithExpressions>[]
+    canvas: HTMLCanvasElement
 };
 
-export const drawEmoji = async ({ detectionsWithExpressions, canvas }: DrawEmojiProps) => {
-  detectionsWithExpressions.forEach((detectionsWithExpression) => {
+export const drawEmoji = async ({ detectionsWithExpressions, canvas }: DrawEmojiProps): Promise<string | null> => {
+    if (detectionsWithExpressions.length === 0) {
+        return null;
+    }
+
+    const detectionsWithExpression = detectionsWithExpressions[0];
     const ctx = canvas.getContext('2d');
 
     if (!ctx) { // base case
-      return;
+        return null;
     }
 
     const Array = Object.entries(detectionsWithExpression.expressions);
@@ -24,17 +28,22 @@ export const drawEmoji = async ({ detectionsWithExpressions, canvas }: DrawEmoji
 
     const image = document.createElement('img');
 
-    image.onload = () => {
-      const width = detectionsWithExpression.detection.box.height * 1.2;
-      const x = detectionsWithExpression.detection.box.x - width * 0.1;
+    await new Promise((resolve) => {
+        image.onload = () => {
+            const width = detectionsWithExpression.detection.box.height * 1.2;
+            const x = detectionsWithExpression.detection.box.x - width * 0.1;
 
-      const height = detectionsWithExpression.detection.box.height * 1.2;
-      const y = detectionsWithExpression.detection.box.y - height * 0.2;
+            const height = detectionsWithExpression.detection.box.height * 1.2;
+            const y = detectionsWithExpression.detection.box.y - height * 0.2;
 
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, x, y, width, height);
-    };
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(image, x, y, width, height);
 
-    image.src = `/emojis/${expression}.png`;
-  });
+            resolve(null);
+        };
+
+        image.src = `/emojis/${expression}.png`;
+    });
+
+    return expression;
 };
